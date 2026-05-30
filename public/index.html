@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <title>Doctor Plant</title>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1">
+
+  <link
+    rel="stylesheet"
+    href="style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+
+    <div>
+
+      <h1>🌿 DOCTOR PLANT</h1>
+
+      <p>
+        Smart Indoor Plant Monitoring &
+        Irrigation Dashboard
+      </p>
+
+    </div>
+
+    <div class="mode-buttons">
+
+      <button
+        onclick="autoMode()"
+        class="green-btn">
+
+        AUTO MODE
+
+      </button>
+
+      <button
+        onclick="manualMode()"
+        class="blue-btn">
+
+        MANUAL MODE
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- BLUETOOTH -->
+  <div class="card">
+
+    <h2>📶 ESP32 Bluetooth Setup</h2>
+
+    <div class="env-grid">
+
+      <!-- BLE -->
+      <div class="metric green-box">
+
+        <p>Bluetooth Connection</p>
+
+        <button
+          onclick="connectBluetooth()"
+          class="green-btn full-btn">
+
+          CONNECT ESP32
+
+        </button>
+
+        <h3 id="esp-status">
+
+          NOT CONNECTED ❌
+
+        </h3>
+
+      </div>
+
+      <!-- WIFI -->
+      <div class="metric blue-box">
+
+        <p>WiFi Credentials</p>
+
+        <input
+          type="text"
+          id="wifi-ssid"
+          placeholder="WiFi Name"
+          class="wifi-input">
+
+        <br><br>
+
+        <input
+          type="password"
+          id="wifi-password"
+          placeholder="WiFi Password"
+          class="wifi-input">
+
+        <br><br>
+
+        <button
+          onclick="sendWiFiCredentials()"
+          class="blue-btn full-btn">
+
+          CONNECT WIFI
+
+        </button>
+
+      </div>
+
+      <!-- STATUS -->
+      <div class="metric light-green-box">
+
+        <p>Provisioning Status</p>
+
+        <h3 id="wifi-status">
+
+          WAITING ⏳
+
+        </h3>
+
+      </div>
+
+      <!-- ESP32 IP CONFIG -->
+      <div class="metric orange-box">
+
+        <p>ESP32 Network Config</p>
+
+        <input
+          type="text"
+          id="esp32-ip"
+          placeholder="192.168.1.5"
+          class="wifi-input"
+          value="">
+
+        <br><br>
+
+        <button
+          onclick="setESP32IP()"
+          class="orange-btn full-btn">
+
+          SET ESP32 IP
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- WEATHER -->
+  <div class="grid-2">
+
+    <div class="card weather-card">
+
+      <h2>🌤️ Live Weather</h2>
+
+      <!-- LOCATION -->
+      <div class="weather-location">
+
+        <select
+          id="state-select"
+          onchange="loadCities()">
+
+          <option value="">
+            Select State
+          </option>
+
+        </select>
+
+        <select id="city-select">
+
+          <option value="">
+            Select City
+          </option>
+
+        </select>
+
+        <button
+          onclick="loadWeather()"
+          class="blue-btn">
+
+          GET WEATHER
+
+        </button>
+
+      </div>
+
+      <!-- WEATHER DATA -->
+      <div class="weather-main">
+
+        <div class="metric green-box">
+
+          <p>Temperature</p>
+
+          <h3 id="weather-temp">
+
+            --°C
+
+          </h3>
+
+        </div>
+
+        <div class="metric blue-box">
+
+          <p>Condition</p>
+
+          <h3 id="weather-condition">
+
+            --
+
+          </h3>
+
+        </div>
+
+        <div class="metric light-green-box">
+
+          <p>Humidity</p>
+
+          <h3 id="weather-humidity">
+
+            --%
+
+          </h3>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- MAIN GRID -->
+  <div class="grid">
+
+    <!-- SOIL -->
+    <div class="card">
+
+      <h2>🌱 Soil Moisture</h2>
+
+      <div class="progress">
+
+        <div id="progress-bar"></div>
+
+      </div>
+
+      <h3 id="moisture">
+
+        0
+
+      </h3>
+
+      <p id="soil-status">
+
+        Checking Soil...
+
+      </p>
+
+    </div>
+
+
+    <!-- PUMP -->
+    <div class="card">
+
+      <h2>💧 Irrigation Control</h2>
+
+      <div class="status-box">
+
+        <span>Pump Status</span>
+
+        <span id="pump-status">
+
+          OFF
+
+        </span>
+
+      </div>
+
+      <div class="status-box">
+
+        <span>Mode</span>
+
+        <span id="mode-status">
+
+          AUTO
+
+        </span>
+
+      </div>
+
+      <button
+        onclick="pumpOn()"
+        class="green-btn full-btn">
+
+        START WATER PUMP
+
+      </button>
+
+      <button
+        onclick="pumpOff()"
+        class="red-btn full-btn">
+
+        STOP WATER PUMP
+
+      </button>
+
+    </div>
+
+
+    <!-- HEALTH -->
+    <div class="card">
+
+      <h2>🌿 Plant Health Metrics</h2>
+
+      <div class="metric green-box">
+
+        <p>CO₂ Level</p>
+
+        <h3 id="co2">
+
+          0 ppm
+
+        </h3>
+
+      </div>
+
+      <div class="metric blue-box">
+
+        <p>Oxygen Output</p>
+
+        <h3 id="oxygen">
+
+          0%
+
+        </h3>
+
+      </div>
+
+      <div class="metric light-green-box">
+
+        <p>Plant Status</p>
+
+        <h3 id="health">
+
+          HEALTHY 🌿
+
+        </h3>
+
+      </div>
+
+    </div>
+
+
+    <!-- CARBON -->
+    <div class="card">
+
+      <h2>🌍 Carbon Credits</h2>
+
+      <div class="planet">
+
+        🌎
+
+      </div>
+
+      <h3
+        id="carbon-score"
+        class="credit-number">
+
+        0%
+
+      </h3>
+
+      <p class="credit-text">
+
+        Sustainability score generated
+        using oxygen contribution and
+        CO₂ absorption.
+
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- ENVIRONMENT -->
+  <div class="grid-2">
+
+    <div class="card">
+
+      <h2>🌡️ Environmental Insights</h2>
+
+      <div class="env-grid">
+
+        <div class="metric green-box">
+
+          <p>Humidity</p>
+
+          <h3 id="humidity">
+
+            0%
+
+          </h3>
+
+        </div>
+
+        <div class="metric blue-box">
+
+          <p>Temperature</p>
+
+          <h3 id="temperature">
+
+            0°C
+
+          </h3>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- AI -->
+  <div class="grid-2">
+
+    <div class="card">
+
+      <h2>🔮 AI Prediction</h2>
+
+      <div class="env-grid">
+
+        <div class="metric light-green-box">
+
+          <p>Prediction</p>
+
+          <h3 id="prediction-status">
+
+            Analyzing...
+
+          </h3>
+
+        </div>
+
+        <div class="metric blue-box">
+
+          <p>Predicted Moisture</p>
+
+          <h3 id="prediction-moisture">
+
+            ---
+
+          </h3>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- CAPACITOR -->
+
+<!-- APP -->
+<script src="app.js"></script>
+
+</body>
+</html>

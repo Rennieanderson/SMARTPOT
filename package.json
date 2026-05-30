@@ -1,0 +1,28 @@
+{
+  "name": "smartpot",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "flask": "python3 lstm_model.py",
+    "start": "node server.js",
+    "dev": "npx nodemon server.js",
+    "serve": "npx http-server public -p 8081",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@capacitor-community/bluetooth-le": "^6.1.0",
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/cli": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "node-fetch": "^2.7.0",
+    "sqlite3": "^6.0.1"
+  }
+}
