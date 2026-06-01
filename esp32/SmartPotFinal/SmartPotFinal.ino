@@ -9,10 +9,13 @@
 #include <DHT.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncTCP.h>
+#include <WiFiClientSecure.h>
+#include <PubSubClient.h>
 
 AsyncWebServer asyncServer(81);
 AsyncWebSocket ws("/ws");
-
+WiFiClientSecure espClient;
+PubSubClient mqttClient(espClient);
 #define DHTPIN 4
 #define DHTTYPE DHT11
 
@@ -25,7 +28,14 @@ DHT dht(DHTPIN, DHTTYPE);
 // ─────────────────────────────
 String ssid = "";
 String password = "";
+const char* mqtt_server =
+"56c32aa0c6ec4531a7e02845ec31d64c.s1.eu.hivemq.cloud";
 
+const int mqtt_port = 8883;
+
+const char* mqtt_user = "doctorplant";
+
+const char* mqtt_password = "Doctorplant1";
 
 // ─────────────────────────────
 // WEB SERVER
@@ -351,16 +361,18 @@ class MyCallbacks :
 
     startServer();
 
+//connectMQTT();
+
     String response = "IP:" + ip;
-    wp->ch->setValue(response.c_str());
-    wp->ch->notify();
+    //wp->ch->setValue(response.c_str());
+    //wp->ch->notify();
 
     Serial.println("Notified client with IP");
 }else {
                 Serial.println("");
                 Serial.println("WIFI FAILED");
-                wp->ch->setValue("FAILED");
-                wp->ch->notify();
+               // wp->ch->setValue("FAILED");
+                //wp->ch->notify();
                 Serial.println("Notified client with FAILED");
               }
 
@@ -401,6 +413,78 @@ void onWsEvent(
     Serial.print("WS DISCONNECTED: ");
     Serial.println(client->id());
 
+  }
+}
+void mqttCallback(
+  char* topic,
+  byte* payload,
+  unsigned int length
+)
+{
+
+  String message = "";
+
+  for(int i=0;i<length;i++){
+    message += (char)payload[i];
+  }
+
+  Serial.print("MQTT [");
+  Serial.print(topic);
+  Serial.print("] ");
+  Serial.println(message);
+
+}
+void connectMQTT(){
+
+  espClient.setInsecure();
+
+  mqttClient.setServer(
+    mqtt_server,
+    mqtt_port
+  );
+
+  mqttClient.setCallback(
+    mqttCallback
+  );
+
+  while(!mqttClient.connected()){
+
+    Serial.println(
+      "Connecting MQTT..."
+    );
+
+    if(
+      mqttClient.connect(
+        "DoctorPlantESP32",
+        mqtt_user,
+        mqtt_password
+      )
+    ){
+
+      Serial.println(
+        "MQTT CONNECTED"
+      );
+
+      mqttClient.subscribe(
+        "doctorplant/pump"
+      );
+
+      mqttClient.subscribe(
+        "doctorplant/mode"
+      );
+
+    }else{
+
+      Serial.print(
+        "MQTT FAILED rc="
+      );
+
+      Serial.println(
+        mqttClient.state()
+      );
+
+      delay(5000);
+    }
   }
 }
 
@@ -513,11 +597,20 @@ pAdvertising->start();
 void loop(){
 
   if(
-    WiFi.status() ==
-    WL_CONNECTED
-  ){
-    server.handleClient();
-  }
+  WiFi.status() ==
+  WL_CONNECTED
+){
+
+  //if(
+   // !mqttClient.connected()
+  //){
+    //connectMQTT();
+  //}
+
+  //mqttClient.loop();
+
+  server.handleClient();
+}
   static unsigned long lastWifiCheck = 0;
 
 if (millis() - lastWifiCheck > 10000) {

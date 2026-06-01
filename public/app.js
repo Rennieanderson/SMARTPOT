@@ -61,6 +61,38 @@ async function connectBluetooth() {
     );
 
     console.log('Characteristic found');
+    await characteristic.startNotifications();
+
+characteristic.addEventListener(
+  'characteristicvaluechanged',
+  (event) => {
+
+    const value =
+      new TextDecoder().decode(
+        event.target.value
+      );
+
+    console.log("BLE RAW:", value);
+
+    if(value.startsWith("IP:")){
+
+      esp32IP =
+        value.replace("IP:", "").trim();
+
+      localStorage.setItem(
+        STORAGE_KEYS.ESP32_IP,
+        esp32IP
+      );
+
+      console.log(
+        "✅ ESP32 IP configured:",
+        esp32IP
+      );
+
+      startPolling();
+    }
+  }
+);
 
     connectedBluetooth = true;
 
