@@ -36,6 +36,8 @@ const int mqtt_port = 8883;
 const char* mqtt_user = "doctorplant";
 
 const char* mqtt_password = "Doctorplant1";
+const char* sensorTopic =
+"doctorplant/sensor";
 
 // ─────────────────────────────
 // WEB SERVER
@@ -472,6 +474,44 @@ void connectMQTT(){
     );
   }
 }
+void publishSensorData(){
+
+  if(!mqttClient.connected()){
+    return;
+  }
+
+  String json = "{";
+
+  json += "\"temperature\":";
+  json += String(temperature,1);
+  json += ",";
+
+  json += "\"humidity\":";
+  json += String(humidity,1);
+  json += ",";
+
+  json += "\"moisture\":";
+  json += String(moisture);
+  json += ",";
+
+  json += "\"pump\":\"";
+  json += pumpStatus;
+  json += "\",";
+
+  json += "\"mode\":\"";
+  json += modeStatus;
+  json += "\"";
+
+  json += "}";
+
+  mqttClient.publish(
+    sensorTopic,
+    json.c_str()
+  );
+
+  Serial.println("MQTT PUBLISHED");
+  Serial.println(json);
+}
 // ─────────────────────────────
 // SETUP
 // ─────────────────────────────
@@ -591,7 +631,7 @@ void loop(){
     //connectMQTT();
   //}
 
-  //mqttClient.loop();
+  mqttClient.loop();
 
   server.handleClient();
 }
@@ -663,6 +703,14 @@ if (
     json += "}";
 
     ws.textAll(json);
+    mqttClient.publish(
+  sensorTopic,
+  json.c_str()
+);
+
+Serial.println(
+  "MQTT PUBLISHED"
+);
 
     Serial.println("WS SENT");
     Serial.println(json);
