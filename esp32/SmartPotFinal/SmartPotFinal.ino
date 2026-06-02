@@ -361,8 +361,9 @@ class MyCallbacks :
 
     startServer();
 
-//connectMQTT();
+connectMQTT();
 
+    
     String response = "IP:" + ip;
     //wp->ch->setValue(response.c_str());
     //wp->ch->notify();
@@ -435,7 +436,7 @@ void mqttCallback(
 
 }
 void connectMQTT(){
-
+  Serial.println("ENTERED MQTT FUNCTION");
   espClient.setInsecure();
 
   mqttClient.setServer(
@@ -443,51 +444,34 @@ void connectMQTT(){
     mqtt_port
   );
 
-  mqttClient.setCallback(
-    mqttCallback
+  Serial.println(
+    "Connecting MQTT..."
   );
 
-  while(!mqttClient.connected()){
-
-    Serial.println(
-      "Connecting MQTT..."
+  bool ok =
+    mqttClient.connect(
+      "DoctorPlantESP32",
+      mqtt_user,
+      mqtt_password
     );
 
-    if(
-      mqttClient.connect(
-        "DoctorPlantESP32",
-        mqtt_user,
-        mqtt_password
-      )
-    ){
+  if(ok){
 
-      Serial.println(
-        "MQTT CONNECTED"
-      );
+    Serial.println(
+      "MQTT CONNECTED"
+    );
 
-      mqttClient.subscribe(
-        "doctorplant/pump"
-      );
+  }else{
 
-      mqttClient.subscribe(
-        "doctorplant/mode"
-      );
+    Serial.print(
+      "MQTT FAILED rc="
+    );
 
-    }else{
-
-      Serial.print(
-        "MQTT FAILED rc="
-      );
-
-      Serial.println(
-        mqttClient.state()
-      );
-
-      delay(5000);
-    }
+    Serial.println(
+      mqttClient.state()
+    );
   }
 }
-
 // ─────────────────────────────
 // SETUP
 // ─────────────────────────────
